@@ -8,14 +8,16 @@ class AmiiboController with ChangeNotifier {
   bool isLoading = false;
 
   late Box<AmiiboModel> favoriteBox;
+  bool _isHiveReady = false; // flag untuk memastikan Hive sudah siap
 
   AmiiboController() {
-    initHive();
+    initHive(); // panggil initHive di constructor
   }
 
-  // hive untuk favorit
+  // Inisialisasi Hive untuk favorit
   Future<void> initHive() async {
     favoriteBox = await Hive.openBox<AmiiboModel>('favorite_box');
+    _isHiveReady = true; // sudah siap
     notifyListeners();
   }
 
@@ -31,25 +33,29 @@ class AmiiboController with ChangeNotifier {
     notifyListeners();
   }
 
-  //cek item favorit
+  // Cek item favorit, pastikan Hive sudah siap
   bool isFavorite(String id) {
+    if (!_isHiveReady) return false;
     return favoriteBox.containsKey(id);
   }
 
-  //add
+  // Tambah favorit
   void addFavorite(AmiiboModel item) {
+    if (!_isHiveReady) return;
     favoriteBox.put(item.tail, item);
     notifyListeners();
   }
 
-  //remove
+  // Hapus favorit
   void removeFavorite(String id) {
+    if (!_isHiveReady) return;
     favoriteBox.delete(id);
     notifyListeners();
   }
 
-  //get all 
+  // Ambil semua favorit
   List<AmiiboModel> getFavorites() {
+    if (!_isHiveReady) return [];
     return favoriteBox.values.toList();
   }
 }
